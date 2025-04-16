@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 import java.io.File;
 
@@ -23,15 +24,12 @@ public class Main {
             fileCount++;
             System.out.println("Это файл номер " + fileCount);
 
-            try {
-                FileReader fileReader = new FileReader(path);
-                BufferedReader reader = new BufferedReader(fileReader);
-
-                int totalLines = 0;
-                int maxLength = Integer.MIN_VALUE;
-                int minLength = Integer.MAX_VALUE;
-
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
+                int totalLines = 0;
+                int googlebotCount = 0;
+                int yandexbotCount = 0;
+
                 while ((line = reader.readLine()) != null) {
                     int length = line.length();
                     if (length > 1024) {
@@ -39,24 +37,32 @@ public class Main {
                     }
 
                     totalLines++;
-                    if (length > maxLength) maxLength = length;
-                    if (length < minLength) minLength = length;
+                    String[] parts = line.split("\"");
+                    if (parts.length >= 6) {
+                        String userAgent = parts[5];
+                        if (userAgent.contains("Googlebot")) {
+                            googlebotCount++;
+                        } else if (userAgent.contains("YandexBot")) {
+                            yandexbotCount++;
+                        }
+                    }
                 }
 
-                reader.close();
-
                 System.out.println("Общее количество строк в файле: " + totalLines);
-                System.out.println("Длина самой длинной строки: " + maxLength);
-                System.out.println("Длина самой короткой строки: " + minLength);
+                System.out.println("Googlebot: " + googlebotCount + " (" +
+                        (totalLines > 0 ? (100 * googlebotCount / totalLines) : 0) + "%)");
+                System.out.println("YandexBot: " + yandexbotCount + " (" +
+                        (totalLines > 0 ? (100 * yandexbotCount / totalLines) : 0) + "%)");
 
+            } catch (IOException e) {
+                System.err.println("Ошибка при чтении файла: " + e.getMessage());
             } catch (LineTooLongException e) {
-                System.out.println("Ошибка: " + e.getMessage());
+                System.out.println(e.getMessage());
                 break;
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
         }
-
         scanner.close();
     }
 }
+
+
