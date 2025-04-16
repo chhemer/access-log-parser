@@ -5,7 +5,6 @@ import java.util.Scanner;
 import java.io.File;
 
 public class Main {
-
     public static void main(String[] args) {
         int fileCount = 0;
         Scanner scanner = new Scanner(System.in);
@@ -24,45 +23,53 @@ public class Main {
             fileCount++;
             System.out.println("Это файл номер " + fileCount);
 
+            int totalLines = 0;
+            int tooLongLines = 0;
+            int skippedLines = 0;
+            int googlebotCount = 0;
+            int yandexbotCount = 0;
+
+            Statistics stats = new Statistics();
+
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
-                int totalLines = 0;
-                int googlebotCount = 0;
-                int yandexbotCount = 0;
+                int lineNumber = 0;
 
                 while ((line = reader.readLine()) != null) {
-                    int length = line.length();
-                    if (length > 1024) {
-                        throw new LineTooLongException("Обнаружена строка длиннее 1024 символов: " + length);
+                    lineNumber++;
+                    totalLines++;
+
+                    if (line.length() > 1024) {
+                        tooLongLines++;
+                        continue;
                     }
 
-                    totalLines++;
-                    String[] parts = line.split("\"");
-                    if (parts.length >= 6) {
-                        String userAgent = parts[5];
-                        if (userAgent.contains("Googlebot")) {
-                            googlebotCount++;
-                        } else if (userAgent.contains("YandexBot")) {
-                            yandexbotCount++;
-                        }
+                    try {
+                        LogEntry entry = new LogEntry(line);
+                        stats.addEntry(entry);
+
+                        String ua = entry.getUserAgent();
+                        if (ua.contains("Googlebot")) googlebotCount++;
+                        if (ua.contains("YandexBot")) yandexbotCount++;
+
+                    } catch (IllegalArgumentException e) {
+                        skippedLines++;
                     }
                 }
 
-                System.out.println("Общее количество строк в файле: " + totalLines);
-                System.out.println("Googlebot: " + googlebotCount + " (" +
-                        (totalLines > 0 ? (100 * googlebotCount / totalLines) : 0) + "%)");
-                System.out.println("YandexBot: " + yandexbotCount + " (" +
-                        (totalLines > 0 ? (100 * yandexbotCount / totalLines) : 0) + "%)");
+                System.out.println("Всего строк в файле: " + totalLines);
+                System.out.println("Строк превышающих 1024 символа: " + tooLongLines);
+                System.out.println("Пропущено строк из-за ошибок разбора: " + skippedLines);
+                System.out.println("Googlebot: " + googlebotCount + " ("
+                        + (totalLines > 0 ? (100 * googlebotCount / totalLines) : 0) + "%)");
+                System.out.println("YandexBot: " + yandexbotCount + " ("
+                        + (totalLines > 0 ? (100 * yandexbotCount / totalLines) : 0) + "%)");
+                System.out.println("Общий трафик: " + stats.getTotalTraffic() + " байт");
+                System.out.println("Средний трафик за час: " + stats.getTrafficRate() + " байт/час");
 
             } catch (IOException e) {
-                System.err.println("Ошибка при чтении файла: " + e.getMessage());
-            } catch (LineTooLongException e) {
-                System.out.println(e.getMessage());
-                break;
+                System.out.println("Ошибка чтения: " + e.getMessage());
             }
         }
-        scanner.close();
     }
 }
-
-
