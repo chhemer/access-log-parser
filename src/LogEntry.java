@@ -65,6 +65,13 @@ public class LogEntry {
     public int getResponseSize() { return responseSize; }
     public String getReferer() { return referer; }
     public String getUserAgent() { return userAgent; }
+    public String getUrl() {
+        return this.path;
+    }
+    public String getOperatingSystem() {
+        UserAgent agent = new UserAgent(this.userAgent);
+        return agent.getOperatingSystem();
+    }
 }
 
 enum HttpMethod {

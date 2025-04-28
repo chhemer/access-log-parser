@@ -23,6 +23,15 @@ public class UserAgent {
         return "Other";
     }
 
-    public String getBrowser() { return browser; }
-    public String getOs() { return os; }
+    public String getBrowser() {
+        return browser;
+    }
+
+    public String getOs() {
+        return os;
+    }
+
+    public String getOperatingSystem() {
+        return getOs();
+    }
 }

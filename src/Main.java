@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 import java.io.File;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -67,6 +68,10 @@ public class Main {
                 System.out.println("Общий трафик: " + stats.getTotalTraffic() + " байт");
                 System.out.println("Средний трафик за час: " + stats.getTrafficRate() + " байт/час");
 
+                System.out.println("\nСтатистика операционных систем:");
+                for (Map.Entry<String, Double> entry : stats.getOsStatistics().entrySet()) {
+                    System.out.printf("%s: %.2f%%\n", entry.getKey(), entry.getValue() * 100);
+                }
             } catch (IOException e) {
                 System.out.println("Ошибка чтения: " + e.getMessage());
             }
