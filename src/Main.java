@@ -80,6 +80,11 @@ public class Main {
                     System.out.printf("%s: %.2f%%%n", entry.getKey(), entry.getValue() * 100);
                 }
 
+                System.out.println("\nДополнительная статистика:");
+                System.out.printf("Среднее количество посещений реальными пользователями за час: ", stats.getAverageRealVisitsPerHour());
+                System.out.printf("Среднее количество ошибочных запросов за час: ", stats.getAverageErrorsPerHour());
+                System.out.printf("Среднее количество посещений одним пользователем: ", stats.getAverageVisitsPerUser());
+
             } catch (IOException e) {
                 System.out.println("Ошибка чтения: " + e.getMessage());
             }

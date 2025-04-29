@@ -13,6 +13,11 @@ public class Statistics {
     private Set<String> missingPages = new HashSet<>();
     private Map<String, Integer> osCounter = new HashMap<>();
     private Map<String, Integer> browserCounter = new HashMap<>();
+
+    private int realUserVisits = 0;
+    private int errorResponses = 0;
+    private Set<String> realUserIps = new HashSet<>();
+
     public Statistics() {
         this.totalTraffic = 0L;
         this.minTime = null;
@@ -38,6 +43,16 @@ public class Statistics {
 
         String browser = new UserAgent(entry.getUserAgent()).getBrowser();
         browserCounter.put(browser, browserCounter.getOrDefault(browser, 0) + 1);
+
+        if (!entry.getUserAgent().toLowerCase().contains("bot")) {
+            realUserVisits++;
+            realUserIps.add(entry.getIpAddr());
+        }
+
+        int code = entry.getResponseCode();
+        if (code >= 400 && code < 600) {
+            errorResponses++;
+        }
     }
 
     public long getTrafficRate() {
@@ -83,5 +98,21 @@ public class Statistics {
             result.put(entry.getKey(), entry.getValue() / (double) total);
         }
         return result;
+    }
+
+    public double getAverageRealVisitsPerHour() {
+        if (minTime == null || maxTime == null || minTime.equals(maxTime)) return 0.0;
+        long hours = Duration.between(minTime, maxTime).toHours();
+        return (hours == 0) ? realUserVisits : (double) realUserVisits / hours;
+    }
+
+    public double getAverageErrorsPerHour() {
+        if (minTime == null || maxTime == null || minTime.equals(maxTime)) return 0.0;
+        long hours = Duration.between(minTime, maxTime).toHours();
+        return (hours == 0) ? errorResponses : (double) errorResponses / hours;
+    }
+
+    public double getAverageVisitsPerUser() {
+        return realUserIps.isEmpty() ? 0.0 : (double) realUserVisits / realUserIps.size();
     }
 }
