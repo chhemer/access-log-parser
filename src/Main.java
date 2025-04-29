@@ -72,6 +72,14 @@ public class Main {
                 for (Map.Entry<String, Double> entry : stats.getOsStatistics().entrySet()) {
                     System.out.printf("%s: %.2f%%\n", entry.getKey(), entry.getValue() * 100);
                 }
+
+                System.out.println("\nКоличество уникальных страниц с кодом 404: " + stats.getMissingPages().size());
+
+                System.out.println("\nСтатистика браузеров:");
+                for (Map.Entry<String, Double> entry : stats.getBrowserStatistics().entrySet()) {
+                    System.out.printf("%s: %.2f%%%n", entry.getKey(), entry.getValue() * 100);
+                }
+
             } catch (IOException e) {
                 System.out.println("Ошибка чтения: " + e.getMessage());
             }

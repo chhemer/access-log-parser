@@ -10,7 +10,9 @@ public class Statistics {
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
     private Set<String> pages = new HashSet<>();
+    private Set<String> missingPages = new HashSet<>();
     private Map<String, Integer> osCounter = new HashMap<>();
+    private Map<String, Integer> browserCounter = new HashMap<>();
     public Statistics() {
         this.totalTraffic = 0L;
         this.minTime = null;
@@ -27,8 +29,15 @@ public class Statistics {
             pages.add(entry.getUrl());
         }
 
+        if (entry.getResponseCode() == 404) {
+            missingPages.add(entry.getUrl());
+        }
+
         String os = entry.getOperatingSystem();
         osCounter.put(os, osCounter.getOrDefault(os, 0) + 1);
+
+        String browser = new UserAgent(entry.getUserAgent()).getBrowser();
+        browserCounter.put(browser, browserCounter.getOrDefault(browser, 0) + 1);
     }
 
     public long getTrafficRate() {
@@ -53,11 +62,24 @@ public class Statistics {
         return pages;
     }
 
+    public Set<String> getMissingPages() {
+        return missingPages;
+    }
     public Map<String, Double> getOsStatistics() {
         Map<String, Double> result = new HashMap<>();
         int total = osCounter.values().stream().mapToInt(Integer::intValue).sum();
 
         for (Map.Entry<String, Integer> entry : osCounter.entrySet()) {
+            result.put(entry.getKey(), entry.getValue() / (double) total);
+        }
+        return result;
+    }
+
+    public Map<String, Double> getBrowserStatistics() {
+        Map<String, Double> result = new HashMap<>();
+        int total = browserCounter.values().stream().mapToInt(Integer::intValue).sum();
+
+        for (Map.Entry<String, Integer> entry : browserCounter.entrySet()) {
             result.put(entry.getKey(), entry.getValue() / (double) total);
         }
         return result;
