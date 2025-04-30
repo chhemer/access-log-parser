@@ -68,22 +68,30 @@ public class Main {
                 System.out.println("Общий трафик: " + stats.getTotalTraffic() + " байт");
                 System.out.println("Средний трафик за час: " + stats.getTrafficRate() + " байт/час");
 
-                System.out.println("\nСтатистика операционных систем:");
+                System.out.println("Статистика операционных систем:");
                 for (Map.Entry<String, Double> entry : stats.getOsStatistics().entrySet()) {
                     System.out.printf("%s: %.2f%%\n", entry.getKey(), entry.getValue() * 100);
                 }
 
-                System.out.println("\nКоличество уникальных страниц с кодом 404: " + stats.getMissingPages().size());
+                System.out.println("Количество уникальных страниц с кодом 404: " + stats.getMissingPages().size());
 
-                System.out.println("\nСтатистика браузеров:");
+                System.out.println("Статистика браузеров:");
                 for (Map.Entry<String, Double> entry : stats.getBrowserStatistics().entrySet()) {
                     System.out.printf("%s: %.2f%%%n", entry.getKey(), entry.getValue() * 100);
                 }
 
-                System.out.println("\nДополнительная статистика:");
-                System.out.printf("Среднее количество посещений реальными пользователями за час: ", stats.getAverageRealVisitsPerHour());
-                System.out.printf("Среднее количество ошибочных запросов за час: ", stats.getAverageErrorsPerHour());
-                System.out.printf("Среднее количество посещений одним пользователем: ", stats.getAverageVisitsPerUser());
+                System.out.printf("Среднее количество посещений реальными пользователями за час: %.2f%n", stats.getAverageRealVisitsPerHour());
+                System.out.printf("Среднее количество ошибочных запросов за час: %.2f%n", stats.getAverageErrorsPerHour());
+                System.out.printf("Среднее количество посещений одним пользователем: %.2f%n", stats.getAverageVisitsPerUser());
+                System.out.println("Пиковая посещаемость сайта (в секунду): " + stats.getPeakTrafficPerSecond());
+                System.out.println("Максимальное количество посещений от одного пользователя: " + stats.getMaxVisitsBySingleUser());
+
+                int totalVisits = stats.getRealUserVisits() + stats.getBotVisits();
+                double botPercent = stats.getBotVisitRatio() * 100.0;
+                System.out.printf("\n--- Статистика по ботам ---%n");
+                System.out.printf("Общее количество посещений: %d%n", totalVisits);
+                System.out.printf("Посещений от ботов: %d (%.2f%%)%n", stats.getBotVisits(), botPercent);
+                System.out.printf("Посещений от пользователей: %d (%.2f%%)%n", stats.getRealUserVisits(), 100.0 - botPercent);
 
             } catch (IOException e) {
                 System.out.println("Ошибка чтения: " + e.getMessage());
